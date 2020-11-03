@@ -1,0 +1,23 @@
+{
+  "name": "rescript-asyncdata",
+  "version": "0.1.0",
+  "sources": [
+    {
+      "dir": "src",
+      "subdirs": true
+    },
+    {
+      "dir": "test",
+      "subdirs": true
+    }
+  ],
+  "package-specs": {
+    "module": "commonjs",
+    "in-source": true
+  },
+  "bs-dependencies": ["reason-test-framework"],
+  "suffix": ".bs.js",
+  "warnings": {
+    "error": "+101"
+  }
+}
