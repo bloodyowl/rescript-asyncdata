@@ -11,10 +11,12 @@ type reloadable<'a> = {
   next: t<'a>,
 }
 
-let useAsyncReloadData = (~merge=(_a, b) => b, ()) => {
+let defaultMerge = (_a, b) => b
+
+let useAsyncReloadData = (~merge=defaultMerge, ()) => {
   let (data, setData) = React.useState(() => {current: NotAsked, next: NotAsked})
 
-  let setData = React.useCallback0(next => {
+  let setData = React.useCallback1(next => {
     setData(state => {
       current: switch (state.current, next) {
       | (Done(current), Done(next)) => Done(merge(current, next))
@@ -23,7 +25,7 @@ let useAsyncReloadData = (~merge=(_a, b) => b, ()) => {
       },
       next: next,
     })
-  })
+  }, [merge])
 
   (data, setData)
 }
