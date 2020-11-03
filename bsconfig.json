@@ -8,14 +8,15 @@
     },
     {
       "dir": "test",
-      "subdirs": true
+      "subdirs": true,
+      "type": "dev"
     }
   ],
   "package-specs": {
     "module": "commonjs",
     "in-source": true
   },
-  "bs-dependencies": ["reason-test-framework"],
+  "bs-dev-dependencies": ["reason-test-framework"],
   "suffix": ".bs.js",
   "warnings": {
     "error": "+101"
