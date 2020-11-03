@@ -1,3 +1,9 @@
+# 1.1.1
+
+Features:
+
+- Make `useCallback` depend on `merge` (a21fce7)
+
 # 1.1.0
 
 Features:
