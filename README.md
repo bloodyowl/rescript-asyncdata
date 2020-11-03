@@ -143,7 +143,7 @@ Takes an optional `merge` to define how to set `current` when receiving a new `D
 That can be useful if you want to compare the original and newly received data.
 
 ```reason
-let (data, setData) = useAsyncReloadData(~merge=(a, _b) => a) // {current: NotAsked, next: NotAsked}
+let (data, setData) = useAsyncReloadData(~merge=(a, _b) => a, ()) // {current: NotAsked, next: NotAsked}
 setData(Loading) // {current: Loading, next: Loading}
 setData(Done(1)) // {current: Done(1), next: Done(1)}
 setData(Loading) // {current: Done(1), next: Loading}
@@ -152,14 +152,16 @@ setData(Done(2)) // {current: Done(1), next: Done(2)}
 
 ### useAsyncPaginatedData
 
-Simple async data with support for pagination
+Simple async data with support for pagination.
+
+Takes a `merge` function so that you can aggregate pages.
 
 Return a record containing:
 - `current`: after initial load, guaranteed to keep a `Done` state containing the aggregated data
 - `next`: the next page request
 
 ```reason
-let (data, setData) = useAsyncPaginatedData(~merge=Array.concat) // {current: NotAsked, next: NotAsked}
+let (data, setData) = useAsyncPaginatedData(~merge=Array.concat, ()) // {current: NotAsked, next: NotAsked}
 setData(Loading) // {current: Loading, next: Loading}
 setData(Done([1, 2, 3])) // {current: Done([1, 2, 3]), next: Done([1, 2, 3])}
 setData(Loading) // {current: Done([1, 2, 3]), next: Loading}
