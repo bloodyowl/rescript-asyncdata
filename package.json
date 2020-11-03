@@ -5,7 +5,8 @@
     "clean": "bsb -clean-world",
     "build": "bsb -make-world",
     "watch": "bsb -make-world -w",
-    "test": "jest"
+    "test": "jest",
+    "examples": "moduleserve ./example --port 8000"
   },
   "keywords": [
     "BuckleScript"
@@ -29,6 +30,12 @@
   "devDependencies": {
     "bs-platform": "^8.3.2",
     "jest": "^26.6.2",
+    "moduleserve": "^0.9.1",
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1",
     "reason-test-framework": "^0.3.2"
+  },
+  "dependencies": {
+    "reason-react": "^0.9.1"
   }
 }

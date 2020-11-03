@@ -1,10 +1,16 @@
 {
   "name": "rescript-asyncdata",
   "version": "0.1.0",
+  "reason": { "react-jsx": 3 },
   "sources": [
     {
       "dir": "src",
       "subdirs": true
+    },
+    {
+      "dir": "example",
+      "subdirs": true,
+      "type": "dev"
     },
     {
       "dir": "test",
@@ -16,6 +22,7 @@
     "module": "commonjs",
     "in-source": true
   },
+  "bs-dependencies": ["reason-react"],
   "bs-dev-dependencies": ["reason-test-framework"],
   "suffix": ".bs.js",
   "warnings": {
