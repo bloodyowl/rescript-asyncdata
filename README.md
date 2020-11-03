@@ -111,4 +111,4 @@ This package contains a few utility functions to manipulate `AsyncData.t`:
 
 ## Aknowledgments
 
-This is heavily inspired by Elm's [https://github.com/krisajenkins/remotedata](krisajenkins/remotedata)
+This is heavily inspired by Elm's [krisajenkins/remotedata](https://github.com/krisajenkins/remotedata)
