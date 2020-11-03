@@ -142,7 +142,7 @@ setData(Done(2)) // {current: Done(2), next: Done(2)}
 Takes an optional `merge` to define how to set `current` when receiving a new `Done(x)` .
 That can be useful if you want to compare the original and newly received data.
 
-```
+```reason
 let (data, setData) = useAsyncReloadData(~merge=(a, _b) => a) // {current: NotAsked, next: NotAsked}
 setData(Loading) // {current: Loading, next: Loading}
 setData(Done(1)) // {current: Done(1), next: Done(1)}
