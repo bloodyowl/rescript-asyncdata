@@ -1,3 +1,9 @@
+# 1.1.0
+
+Features:
+
+- Add React helpers (8b122b3)
+
 # 1.0.1
 
 Fixes:
