@@ -29,7 +29,3 @@ let useAsyncReloadData = (~merge=defaultMerge, ()) => {
 
   (data, setData)
 }
-
-let useAsyncPaginatedData = (~merge, ()) => {
-  useAsyncReloadData(~merge, ())
-}

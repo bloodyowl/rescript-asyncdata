@@ -108,54 +108,10 @@ module AsyncWithReload = {
   }
 }
 
-module AsyncWithPagination = {
-  let merge = (a, b) => {
-    switch (a, b) {
-    | (Ok(a), Ok(b)) => Ok(Array.concat(a, b))
-    | _ => a
-    }
-  }
-
-  @react.component
-  let make = () => {
-    let (users, setUsers) = ReactAsyncData.useAsyncPaginatedData(~merge, ())
-    let (page, setPage) = React.useState(() => 1)
-
-    React.useEffect1(() => {
-      setUsers(Loading)
-      User.getPage(page, users => {
-        setUsers(Done(users))
-      })->Option.map((func, ()) => {
-        setUsers(NotAsked)
-        func()
-      })
-    }, [page])
-
-    <div>
-      {switch users.current {
-      | NotAsked => React.null
-      | Loading => "Loading ..."->React.string
-      | Done(Error(_)) => "Error"->React.string
-      | Done(Ok(items)) =>
-        let list = items->Array.map(user => {
-          <li key=user.id> {user.username->React.string} </li>
-        })->React.array
-        <>
-          <ul> {list} </ul>
-          {users.next->AsyncData.isLoading ? "Loading next page"->React.string : React.null}
-          <button disabled={users.next->AsyncData.isLoading} onClick={_ => setPage(x => x + 1)}>
-            {"Load next page"->React.string}
-          </button>
-        </>
-      }}
-    </div>
-  }
-}
-
 module App = {
   @react.component
   let make = () => {
-    <div> <Async id="1" /> <br /> <AsyncWithReload id="2" /> <br /> <AsyncWithPagination /> </div>
+    <div> <Async id="1" /> <br /> <AsyncWithReload id="2" /> </div>
   }
 }
 

@@ -9,8 +9,3 @@ let useAsyncReloadData: (
   ~merge: ('a, 'a) => 'a=?,
   unit,
 ) => (reloadable<'a>, AsyncData.t<'a> => unit)
-
-let useAsyncPaginatedData: (
-  ~merge: ('a, 'a) => 'a,
-  unit,
-) => (reloadable<'a>, AsyncData.t<'a> => unit)

@@ -128,6 +128,7 @@ setData(Done(1)) // Done(1)
 Simple async data with support for reload.
 
 Return a record containing:
+
 - `current`: after initial load, guaranteed to keep a `Done` state
 - `next`: the reload request
 
@@ -148,24 +149,6 @@ setData(Loading) // {current: Loading, next: Loading}
 setData(Done(1)) // {current: Done(1), next: Done(1)}
 setData(Loading) // {current: Done(1), next: Loading}
 setData(Done(2)) // {current: Done(1), next: Done(2)}
-```
-
-### useAsyncPaginatedData
-
-Simple async data with support for pagination.
-
-Takes a `merge` function so that you can aggregate pages.
-
-Return a record containing:
-- `current`: after initial load, guaranteed to keep a `Done` state containing the aggregated data
-- `next`: the next page request
-
-```reason
-let (data, setData) = useAsyncPaginatedData(~merge=Array.concat, ()) // {current: NotAsked, next: NotAsked}
-setData(Loading) // {current: Loading, next: Loading}
-setData(Done([1, 2, 3])) // {current: Done([1, 2, 3]), next: Done([1, 2, 3])}
-setData(Loading) // {current: Done([1, 2, 3]), next: Loading}
-setData(Done([4, 5, 6])) // {current: Done([1, 2, 3, 4, 5, 6]), next: Done([4, 5, 6])}
 ```
 
 ## Aknowledgments
