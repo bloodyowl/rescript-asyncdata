@@ -1,3 +1,9 @@
+# 2.0.0
+
+Changes:
+
+- Remove paginated hook for now (347bfc9)
+
 # 1.1.1
 
 Features:
