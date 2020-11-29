@@ -19,11 +19,11 @@
     }
   ],
   "package-specs": {
-    "module": "commonjs",
+    "module": "es6",
     "in-source": true
   },
   "bs-dependencies": ["reason-react"],
-  "bs-dev-dependencies": ["reason-test-framework"],
+  "bs-dev-dependencies": ["rescript-test"],
   "suffix": ".bs.js",
   "warnings": {
     "error": "+101"

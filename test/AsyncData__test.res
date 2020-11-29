@@ -1,128 +1,134 @@
-open TestFramework
+open Test
 open AsyncData
 
-describe("AsyncData", ({test}) => {
-  test("getExn", ({expect}) => {
-    expect.value(
-      try getExn(NotAsked) catch {
-      | _ => Not_found
-      },
-    ).toEqual(Not_found)
-    expect.value(
-      try getExn(Loading) catch {
-      | _ => Not_found
-      },
-    ).toEqual(Not_found)
-    expect.value(getExn(Done(1))).toEqual(1)
-  })
+let intEqual = (~message=?, a: int, b: int) => assertion(~message?, (a, b) => a == b, a, b)
+let boolEqual = (~message=?, a: bool, b: bool) => assertion(~message?, (a, b) => a == b, a, b)
+let asyncDataEqual = (~message=?, a: AsyncData.t<'a>, b: AsyncData.t<'a>) =>
+  assertion(~message?, (a, b) => AsyncData.eq(a, b, (a, b) => a == b), a, b)
+let asyncDataArrayEqual = (~message=?, a: array<AsyncData.t<'a>>, b: array<AsyncData.t<'a>>) =>
+  assertion(
+    ~message?,
+    (a, b) => Belt.Array.eq(a, b, (a, b) => AsyncData.eq(a, b, (a, b) => a == b)),
+    a,
+    b,
+  )
 
-  test("mapWithDefaultU", ({expect}) => {
-    expect.int(NotAsked->mapWithDefaultU(0, (. value) => value + 1)).toBe(0)
-    expect.int(Loading->mapWithDefaultU(0, (. value) => value + 1)).toBe(0)
-    expect.int(Done(1)->mapWithDefaultU(0, (. value) => value + 1)).toBe(2)
+test("AsyncData getExn", () => {
+  throws(() => getExn(NotAsked))
+  throws(() => getExn(Loading))
+  doesNotThrow(() => {
+    let _ = getExn(Done(1))
   })
+})
 
-  test("mapWithDefault", ({expect}) => {
-    expect.int(NotAsked->mapWithDefault(0, value => value + 1)).toBe(0)
-    expect.int(Loading->mapWithDefault(0, value => value + 1)).toBe(0)
-    expect.int(Done(1)->mapWithDefault(0, value => value + 1)).toBe(2)
-  })
+test("AsyncData mapWithDefaultU", () => {
+  intEqual(NotAsked->mapWithDefaultU(0, (. value) => value + 1), 0)
+  intEqual(Loading->mapWithDefaultU(0, (. value) => value + 1), 0)
+  intEqual(Done(1)->mapWithDefaultU(0, (. value) => value + 1), 2)
+})
 
-  test("mapU", ({expect}) => {
-    expect.value(NotAsked->mapU((. value) => value + 1)).toEqual(NotAsked)
-    expect.value(Loading->mapU((. value) => value + 1)).toEqual(Loading)
-    expect.value(Done(1)->mapU((. value) => value + 1)).toEqual(Done(2))
-  })
+test("AsyncData mapWithDefault", () => {
+  intEqual(NotAsked->mapWithDefault(0, value => value + 1), 0)
+  intEqual(Loading->mapWithDefault(0, value => value + 1), 0)
+  intEqual(Done(1)->mapWithDefault(0, value => value + 1), 2)
+})
 
-  test("map", ({expect}) => {
-    expect.value(NotAsked->map(value => value + 1)).toEqual(NotAsked)
-    expect.value(Loading->map(value => value + 1)).toEqual(Loading)
-    expect.value(Done(1)->map(value => value + 1)).toEqual(Done(2))
-  })
+test("AsyncData mapU", () => {
+  asyncDataEqual(NotAsked->mapU((. value) => value + 1), NotAsked)
+  asyncDataEqual(Loading->mapU((. value) => value + 1), Loading)
+  asyncDataEqual(Done(1)->mapU((. value) => value + 1), Done(2))
+})
 
-  test("flatMapU", ({expect}) => {
-    expect.value(NotAsked->flatMapU((. value) => Done(value + 1))).toEqual(NotAsked)
-    expect.value(Loading->flatMapU((. value) => Done(value + 1))).toEqual(Loading)
-    expect.value(Done(1)->flatMapU((. value) => Done(value + 1))).toEqual(Done(2))
-    expect.value(Done(1)->flatMapU((. _) => Loading)).toEqual(Loading)
-    expect.value(Done(1)->flatMapU((. _) => NotAsked)).toEqual(NotAsked)
-  })
+test("AsyncData map", () => {
+  asyncDataEqual(NotAsked->map(value => value + 1), NotAsked)
+  asyncDataEqual(Loading->map(value => value + 1), Loading)
+  asyncDataEqual(Done(1)->map(value => value + 1), Done(2))
+})
 
-  test("flatMap", ({expect}) => {
-    expect.value(NotAsked->flatMap(value => Done(value + 1))).toEqual(NotAsked)
-    expect.value(Loading->flatMap(value => Done(value + 1))).toEqual(Loading)
-    expect.value(Done(1)->flatMap(value => Done(value + 1))).toEqual(Done(2))
-    expect.value(Done(1)->flatMap(_ => Loading)).toEqual(Loading)
-    expect.value(Done(1)->flatMap(_ => NotAsked)).toEqual(NotAsked)
-  })
+test("AsyncData flatMapU", () => {
+  asyncDataEqual(NotAsked->flatMapU((. value) => Done(value + 1)), NotAsked)
+  asyncDataEqual(Loading->flatMapU((. value) => Done(value + 1)), Loading)
+  asyncDataEqual(Done(1)->flatMapU((. value) => Done(value + 1)), Done(2))
+  asyncDataEqual(Done(1)->flatMapU((. _) => Loading), Loading)
+  asyncDataEqual(Done(1)->flatMapU((. _) => NotAsked), NotAsked)
+})
 
-  test("getWithDefault", ({expect}) => {
-    expect.value(NotAsked->getWithDefault(1)).toEqual(1)
-    expect.value(Loading->getWithDefault(1)).toEqual(1)
-    expect.value(Done(2)->getWithDefault(1)).toEqual(2)
-  })
+test("AsyncData flatMap", () => {
+  asyncDataEqual(NotAsked->flatMap(value => Done(value + 1)), NotAsked)
+  asyncDataEqual(Loading->flatMap(value => Done(value + 1)), Loading)
+  asyncDataEqual(Done(1)->flatMap(value => Done(value + 1)), Done(2))
+  asyncDataEqual(Done(1)->flatMap(_ => Loading), Loading)
+  asyncDataEqual(Done(1)->flatMap(_ => NotAsked), NotAsked)
+})
 
-  test("isLoading", ({expect}) => {
-    expect.value(NotAsked->isLoading).toEqual(false)
-    expect.value(Loading->isLoading).toEqual(true)
-    expect.value(Done(2)->isLoading).toEqual(false)
-  })
+test("AsyncData getWithDefault", () => {
+  intEqual(NotAsked->getWithDefault(1), 1)
+  intEqual(Loading->getWithDefault(1), 1)
+  intEqual(Done(2)->getWithDefault(1), 2)
+})
 
-  test("isDone", ({expect}) => {
-    expect.value(NotAsked->isDone).toEqual(false)
-    expect.value(Loading->isDone).toEqual(false)
-    expect.value(Done(2)->isDone).toEqual(true)
-  })
+test("AsyncData isLoading", () => {
+  boolEqual(NotAsked->isLoading, false)
+  boolEqual(Loading->isLoading, true)
+  boolEqual(Done(2)->isLoading, false)
+})
 
-  test("isNotAsked", ({expect}) => {
-    expect.value(NotAsked->isNotAsked).toEqual(true)
-    expect.value(Loading->isNotAsked).toEqual(false)
-    expect.value(Done(2)->isNotAsked).toEqual(false)
-  })
+test("AsyncData isDone", () => {
+  boolEqual(NotAsked->isDone, false)
+  boolEqual(Loading->isDone, false)
+  boolEqual(Done(2)->isDone, true)
+})
 
-  test("eqU", ({expect}) => {
-    expect.value(eqU(NotAsked, NotAsked, (. a, b) => a === b)).toEqual(true)
-    expect.value(eqU(Loading, Loading, (. a, b) => a === b)).toEqual(true)
-    expect.value(eqU(NotAsked, Loading, (. a, b) => a === b)).toEqual(false)
-    expect.value(eqU(Loading, NotAsked, (. a, b) => a === b)).toEqual(false)
-    expect.value(eqU(NotAsked, Done(1), (. a, b) => a === b)).toEqual(false)
-    expect.value(eqU(Loading, Done(1), (. a, b) => a === b)).toEqual(false)
-    expect.value(eqU(Done(1), NotAsked, (. a, b) => a === b)).toEqual(false)
-    expect.value(eqU(Done(1), Loading, (. a, b) => a === b)).toEqual(false)
-    expect.value(eqU(Done(1), Done(1), (. a, b) => a === b)).toEqual(true)
-    expect.value(eqU(Done(1), Done(2), (. a, b) => a === b)).toEqual(false)
-    expect.value(eqU(Done(2), Done(1), (. a, b) => a === b)).toEqual(false)
-  })
+test("AsyncData isNotAsked", () => {
+  boolEqual(NotAsked->isNotAsked, true)
+  boolEqual(Loading->isNotAsked, false)
+  boolEqual(Done(2)->isNotAsked, false)
+})
 
-  test("eq", ({expect}) => {
-    expect.value(eq(NotAsked, NotAsked, (a, b) => a === b)).toEqual(true)
-    expect.value(eq(Loading, Loading, (a, b) => a === b)).toEqual(true)
-    expect.value(eq(NotAsked, Loading, (a, b) => a === b)).toEqual(false)
-    expect.value(eq(Loading, NotAsked, (a, b) => a === b)).toEqual(false)
-    expect.value(eq(NotAsked, Done(1), (a, b) => a === b)).toEqual(false)
-    expect.value(eq(Loading, Done(1), (a, b) => a === b)).toEqual(false)
-    expect.value(eq(Done(1), NotAsked, (a, b) => a === b)).toEqual(false)
-    expect.value(eq(Done(1), Loading, (a, b) => a === b)).toEqual(false)
-    expect.value(eq(Done(1), Done(1), (a, b) => a === b)).toEqual(true)
-    expect.value(eq(Done(1), Done(2), (a, b) => a === b)).toEqual(false)
-    expect.value(eq(Done(2), Done(1), (a, b) => a === b)).toEqual(false)
-  })
+test("AsyncData eqU", () => {
+  boolEqual(eqU(NotAsked, NotAsked, (. a, b) => a === b), true)
+  boolEqual(eqU(Loading, Loading, (. a, b) => a === b), true)
+  boolEqual(eqU(NotAsked, Loading, (. a, b) => a === b), false)
+  boolEqual(eqU(Loading, NotAsked, (. a, b) => a === b), false)
+  boolEqual(eqU(NotAsked, Done(1), (. a, b) => a === b), false)
+  boolEqual(eqU(Loading, Done(1), (. a, b) => a === b), false)
+  boolEqual(eqU(Done(1), NotAsked, (. a, b) => a === b), false)
+  boolEqual(eqU(Done(1), Loading, (. a, b) => a === b), false)
+  boolEqual(eqU(Done(1), Done(1), (. a, b) => a === b), true)
+  boolEqual(eqU(Done(1), Done(2), (. a, b) => a === b), false)
+  boolEqual(eqU(Done(2), Done(1), (. a, b) => a === b), false)
+})
 
-  test("cmpU", ({expect}) => {
-    open Belt
-    expect.value(
-      [Done(2), NotAsked, Loading, Loading, Done(1), NotAsked]->SortArray.stableSortBy((a, b) =>
-        cmpU(a, b, (. a, b) => b > a ? -1 : 1)
-      ),
-    ).toEqual([NotAsked, NotAsked, Loading, Loading, Done(1), Done(2)])
-  })
+test("AsyncData eq", () => {
+  boolEqual(eq(NotAsked, NotAsked, (a, b) => a === b), true)
+  boolEqual(eq(Loading, Loading, (a, b) => a === b), true)
+  boolEqual(eq(NotAsked, Loading, (a, b) => a === b), false)
+  boolEqual(eq(Loading, NotAsked, (a, b) => a === b), false)
+  boolEqual(eq(NotAsked, Done(1), (a, b) => a === b), false)
+  boolEqual(eq(Loading, Done(1), (a, b) => a === b), false)
+  boolEqual(eq(Done(1), NotAsked, (a, b) => a === b), false)
+  boolEqual(eq(Done(1), Loading, (a, b) => a === b), false)
+  boolEqual(eq(Done(1), Done(1), (a, b) => a === b), true)
+  boolEqual(eq(Done(1), Done(2), (a, b) => a === b), false)
+  boolEqual(eq(Done(2), Done(1), (a, b) => a === b), false)
+})
 
-  test("cmp", ({expect}) => {
-    open Belt
-    expect.value(
-      [Done(2), NotAsked, Loading, Loading, Done(1), NotAsked]->SortArray.stableSortBy((a, b) =>
-        cmp(a, b, (a, b) => b > a ? -1 : 1)
-      ),
-    ).toEqual([NotAsked, NotAsked, Loading, Loading, Done(1), Done(2)])
-  })
+test("AsyncData cmpU", () => {
+  open Belt
+  asyncDataArrayEqual(
+    [Done(2), NotAsked, Loading, Loading, Done(1), NotAsked]->SortArray.stableSortBy((a, b) =>
+      cmpU(a, b, (. a, b) => b > a ? -1 : 1)
+    ),
+    [NotAsked, NotAsked, Loading, Loading, Done(1), Done(2)],
+  )
+})
+
+test("AsyncData cmp", () => {
+  open Belt
+  asyncDataArrayEqual(
+    [Done(2), NotAsked, Loading, Loading, Done(1), NotAsked]->SortArray.stableSortBy((a, b) =>
+      cmp(a, b, (a, b) => b > a ? -1 : 1)
+    ),
+    [NotAsked, NotAsked, Loading, Loading, Done(1), Done(2)],
+  )
 })

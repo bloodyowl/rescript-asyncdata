@@ -1,7 +1,23 @@
-open TestFramework
+open Test
 open AsyncData
 open ReactTestUtils
 open Belt
+
+@bs.val external window: {..} = "window"
+@bs.send external remove: Dom.element => unit = "remove"
+
+let createContainer = () => {
+  let containerElement: Dom.element = window["document"]["createElement"]("div")
+  let _ = window["document"]["body"]["appendChild"](containerElement)
+  containerElement
+}
+
+let cleanupContainer = container => {
+  ReactDOM.unmountComponentAtNode(container)
+  remove(container)
+}
+
+let testWithReact = testWith(~setup=createContainer, ~teardown=cleanupContainer)
 
 module UseAsyncData = {
   @react.component
@@ -70,132 +86,122 @@ module UseAsyncReloadData = {
   }
 }
 
-describe("AsyncData", ({test, beforeEach, afterEach}) => {
-  let container = ref(None)
+let isTrue = (~message=?, a: bool) => assertion(~message?, (a, b) => a == b, a, true)
 
-  beforeEach(prepareContainer(container))
-  afterEach(cleanupContainer(container))
-
-  test("useAsyncData", ({expect}) => {
-    let container = getContainer(container)
-
-    act(() => {
-      ReactDOMRe.render(<UseAsyncData />, container)
-    })
-
-    let value = container->DOM.findBySelectorAndTextContent("div", "NotAsked")
-    expect.bool(value->Option.isSome).toBeTrue()
-
-    act(() => {
-      ReactDOMRe.render(<UseAsyncData step=1 />, container)
-    })
-
-    let value = container->DOM.findBySelectorAndTextContent("div", "Loading")
-    expect.bool(value->Option.isSome).toBeTrue()
-
-    act(() => {
-      ReactDOMRe.render(<UseAsyncData step=2 />, container)
-    })
-
-    let value = container->DOM.findBySelectorAndTextContent("div", "Done(1)")
-    expect.bool(value->Option.isSome).toBeTrue()
+testWithReact("useAsyncData", container => {
+  act(() => {
+    ReactDOMRe.render(<UseAsyncData />, container)
   })
 
-  test("useAsyncReloadData", ({expect}) => {
-    let container = getContainer(container)
+  let value = container->DOM.findBySelectorAndTextContent("div", "NotAsked")
+  isTrue(value->Option.isSome)
 
-    act(() => {
-      ReactDOMRe.render(<UseAsyncReloadData />, container)
-    })
-
-    let value = container->DOM.findBySelectorAndTextContent(".current", "NotAsked")
-    expect.bool(value->Option.isSome).toBeTrue()
-    let value = container->DOM.findBySelectorAndTextContent(".next", "NotAsked")
-    expect.bool(value->Option.isSome).toBeTrue()
-
-    act(() => {
-      ReactDOMRe.render(<UseAsyncReloadData step=1 />, container)
-    })
-
-    let value = container->DOM.findBySelectorAndTextContent(".current", "Loading")
-    expect.bool(value->Option.isSome).toBeTrue()
-    let value = container->DOM.findBySelectorAndTextContent(".next", "Loading")
-    expect.bool(value->Option.isSome).toBeTrue()
-
-    act(() => {
-      ReactDOMRe.render(<UseAsyncReloadData step=2 />, container)
-    })
-
-    let value = container->DOM.findBySelectorAndTextContent(".current", "Done(1)")
-    expect.bool(value->Option.isSome).toBeTrue()
-    let value = container->DOM.findBySelectorAndTextContent(".next", "Done(1)")
-    expect.bool(value->Option.isSome).toBeTrue()
-
-    act(() => {
-      ReactDOMRe.render(<UseAsyncReloadData step=3 />, container)
-    })
-
-    let value = container->DOM.findBySelectorAndTextContent(".current", "Done(1)")
-    expect.bool(value->Option.isSome).toBeTrue()
-    let value = container->DOM.findBySelectorAndTextContent(".next", "Loading")
-    expect.bool(value->Option.isSome).toBeTrue()
-
-    act(() => {
-      ReactDOMRe.render(<UseAsyncReloadData step=4 />, container)
-    })
-
-    let value = container->DOM.findBySelectorAndTextContent(".current", "Done(2)")
-    expect.bool(value->Option.isSome).toBeTrue()
-    let value = container->DOM.findBySelectorAndTextContent(".next", "Done(2)")
-    expect.bool(value->Option.isSome).toBeTrue()
+  act(() => {
+    ReactDOMRe.render(<UseAsyncData step=1 />, container)
   })
 
-  test("useAsyncReloadData with merge", ({expect}) => {
-    let container = getContainer(container)
-    let merge = (a, _b) => a
-    act(() => {
-      ReactDOMRe.render(<UseAsyncReloadData merge />, container)
-    })
+  let value = container->DOM.findBySelectorAndTextContent("div", "Loading")
+  isTrue(value->Option.isSome)
 
-    let value = container->DOM.findBySelectorAndTextContent(".current", "NotAsked")
-    expect.bool(value->Option.isSome).toBeTrue()
-    let value = container->DOM.findBySelectorAndTextContent(".next", "NotAsked")
-    expect.bool(value->Option.isSome).toBeTrue()
-
-    act(() => {
-      ReactDOMRe.render(<UseAsyncReloadData step=1 merge />, container)
-    })
-
-    let value = container->DOM.findBySelectorAndTextContent(".current", "Loading")
-    expect.bool(value->Option.isSome).toBeTrue()
-    let value = container->DOM.findBySelectorAndTextContent(".next", "Loading")
-    expect.bool(value->Option.isSome).toBeTrue()
-
-    act(() => {
-      ReactDOMRe.render(<UseAsyncReloadData step=2 merge />, container)
-    })
-
-    let value = container->DOM.findBySelectorAndTextContent(".current", "Done(1)")
-    expect.bool(value->Option.isSome).toBeTrue()
-    let value = container->DOM.findBySelectorAndTextContent(".next", "Done(1)")
-    expect.bool(value->Option.isSome).toBeTrue()
-
-    act(() => {
-      ReactDOMRe.render(<UseAsyncReloadData step=3 merge />, container)
-    })
-
-    let value = container->DOM.findBySelectorAndTextContent(".current", "Done(1)")
-    expect.bool(value->Option.isSome).toBeTrue()
-    let value = container->DOM.findBySelectorAndTextContent(".next", "Loading")
-    expect.bool(value->Option.isSome).toBeTrue()
-
-    act(() => {
-      ReactDOMRe.render(<UseAsyncReloadData step=4 merge />, container)
-    })
-
-    let value = container->DOM.findBySelectorAndTextContent(".current", "Done(1)")
-    expect.bool(value->Option.isSome).toBeTrue()
-    let value = container->DOM.findBySelectorAndTextContent(".next", "Done(2)")
-    expect.bool(value->Option.isSome).toBeTrue()
+  act(() => {
+    ReactDOMRe.render(<UseAsyncData step=2 />, container)
   })
+
+  let value = container->DOM.findBySelectorAndTextContent("div", "Done(1)")
+  isTrue(value->Option.isSome)
+})
+
+testWithReact("useAsyncReloadData", container => {
+  act(() => {
+    ReactDOMRe.render(<UseAsyncReloadData />, container)
+  })
+
+  let value = container->DOM.findBySelectorAndTextContent(".current", "NotAsked")
+  isTrue(value->Option.isSome)
+  let value = container->DOM.findBySelectorAndTextContent(".next", "NotAsked")
+  isTrue(value->Option.isSome)
+
+  act(() => {
+    ReactDOMRe.render(<UseAsyncReloadData step=1 />, container)
+  })
+
+  let value = container->DOM.findBySelectorAndTextContent(".current", "Loading")
+  isTrue(value->Option.isSome)
+  let value = container->DOM.findBySelectorAndTextContent(".next", "Loading")
+  isTrue(value->Option.isSome)
+
+  act(() => {
+    ReactDOMRe.render(<UseAsyncReloadData step=2 />, container)
+  })
+
+  let value = container->DOM.findBySelectorAndTextContent(".current", "Done(1)")
+  isTrue(value->Option.isSome)
+  let value = container->DOM.findBySelectorAndTextContent(".next", "Done(1)")
+  isTrue(value->Option.isSome)
+
+  act(() => {
+    ReactDOMRe.render(<UseAsyncReloadData step=3 />, container)
+  })
+
+  let value = container->DOM.findBySelectorAndTextContent(".current", "Done(1)")
+  isTrue(value->Option.isSome)
+  let value = container->DOM.findBySelectorAndTextContent(".next", "Loading")
+  isTrue(value->Option.isSome)
+
+  act(() => {
+    ReactDOMRe.render(<UseAsyncReloadData step=4 />, container)
+  })
+
+  let value = container->DOM.findBySelectorAndTextContent(".current", "Done(2)")
+  isTrue(value->Option.isSome)
+  let value = container->DOM.findBySelectorAndTextContent(".next", "Done(2)")
+  isTrue(value->Option.isSome)
+})
+
+testWithReact("useAsyncReloadData with merge", container => {
+  let merge = (a, _b) => a
+  act(() => {
+    ReactDOMRe.render(<UseAsyncReloadData merge />, container)
+  })
+
+  let value = container->DOM.findBySelectorAndTextContent(".current", "NotAsked")
+  isTrue(value->Option.isSome)
+  let value = container->DOM.findBySelectorAndTextContent(".next", "NotAsked")
+  isTrue(value->Option.isSome)
+
+  act(() => {
+    ReactDOMRe.render(<UseAsyncReloadData step=1 merge />, container)
+  })
+
+  let value = container->DOM.findBySelectorAndTextContent(".current", "Loading")
+  isTrue(value->Option.isSome)
+  let value = container->DOM.findBySelectorAndTextContent(".next", "Loading")
+  isTrue(value->Option.isSome)
+
+  act(() => {
+    ReactDOMRe.render(<UseAsyncReloadData step=2 merge />, container)
+  })
+
+  let value = container->DOM.findBySelectorAndTextContent(".current", "Done(1)")
+  isTrue(value->Option.isSome)
+  let value = container->DOM.findBySelectorAndTextContent(".next", "Done(1)")
+  isTrue(value->Option.isSome)
+
+  act(() => {
+    ReactDOMRe.render(<UseAsyncReloadData step=3 merge />, container)
+  })
+
+  let value = container->DOM.findBySelectorAndTextContent(".current", "Done(1)")
+  isTrue(value->Option.isSome)
+  let value = container->DOM.findBySelectorAndTextContent(".next", "Loading")
+  isTrue(value->Option.isSome)
+
+  act(() => {
+    ReactDOMRe.render(<UseAsyncReloadData step=4 merge />, container)
+  })
+
+  let value = container->DOM.findBySelectorAndTextContent(".current", "Done(1)")
+  isTrue(value->Option.isSome)
+  let value = container->DOM.findBySelectorAndTextContent(".next", "Done(2)")
+  isTrue(value->Option.isSome)
 })

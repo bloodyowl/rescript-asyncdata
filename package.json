@@ -5,35 +5,19 @@
     "clean": "bsb -clean-world",
     "build": "bsb -make-world",
     "watch": "bsb -make-world -w",
-    "test": "jest",
-    "examples": "moduleserve ./example --port 8000"
+    "test": "retest --with-dom test/*.bs.js"
   },
   "keywords": [
     "BuckleScript"
   ],
   "author": "",
   "license": "MIT",
-  "jest": {
-    "moduleDirectories": [
-      "node_modules"
-    ],
-    "roots": [
-      "test"
-    ],
-    "testMatch": [
-      "**/*__test.bs.js"
-    ],
-    "transformIgnorePatterns": [
-      "node_modules/(?!(bs-platform|reason-react|reason-react-compat|reason-react-update|bs-webapi|bs-css|bs-css-emotion)/)"
-    ]
-  },
   "devDependencies": {
     "bs-platform": "^8.3.2",
-    "jest": "^26.6.2",
     "moduleserve": "^0.9.1",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
-    "reason-test-framework": "^0.3.2"
+    "rescript-test": "^0.6.3"
   },
   "dependencies": {
     "reason-react": "^0.9.1"
