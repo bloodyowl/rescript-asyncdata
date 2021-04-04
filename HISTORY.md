@@ -1,3 +1,9 @@
+# 3.0.0
+
+Changes:
+
+- Move to ReScript React (f0c885f)
+
 # 2.0.0
 
 Changes:
