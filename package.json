@@ -1,6 +1,6 @@
 {
   "name": "rescript-asyncdata",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "scripts": {
     "clean": "bsb -clean-world",
     "build": "bsb -make-world",
