@@ -90,21 +90,21 @@ let isTrue = (~message=?, a: bool) => assertion(~message?, (a, b) => a == b, a, 
 
 testWithReact("useAsyncData", container => {
   act(() => {
-    ReactDOMRe.render(<UseAsyncData />, container)
+    ReactDOM.render(<UseAsyncData />, container)
   })
 
   let value = container->DOM.findBySelectorAndTextContent("div", "NotAsked")
   isTrue(value->Option.isSome)
 
   act(() => {
-    ReactDOMRe.render(<UseAsyncData step=1 />, container)
+    ReactDOM.render(<UseAsyncData step=1 />, container)
   })
 
   let value = container->DOM.findBySelectorAndTextContent("div", "Loading")
   isTrue(value->Option.isSome)
 
   act(() => {
-    ReactDOMRe.render(<UseAsyncData step=2 />, container)
+    ReactDOM.render(<UseAsyncData step=2 />, container)
   })
 
   let value = container->DOM.findBySelectorAndTextContent("div", "Done(1)")
@@ -113,7 +113,7 @@ testWithReact("useAsyncData", container => {
 
 testWithReact("useAsyncReloadData", container => {
   act(() => {
-    ReactDOMRe.render(<UseAsyncReloadData />, container)
+    ReactDOM.render(<UseAsyncReloadData />, container)
   })
 
   let value = container->DOM.findBySelectorAndTextContent(".current", "NotAsked")
@@ -122,7 +122,7 @@ testWithReact("useAsyncReloadData", container => {
   isTrue(value->Option.isSome)
 
   act(() => {
-    ReactDOMRe.render(<UseAsyncReloadData step=1 />, container)
+    ReactDOM.render(<UseAsyncReloadData step=1 />, container)
   })
 
   let value = container->DOM.findBySelectorAndTextContent(".current", "Loading")
@@ -131,7 +131,7 @@ testWithReact("useAsyncReloadData", container => {
   isTrue(value->Option.isSome)
 
   act(() => {
-    ReactDOMRe.render(<UseAsyncReloadData step=2 />, container)
+    ReactDOM.render(<UseAsyncReloadData step=2 />, container)
   })
 
   let value = container->DOM.findBySelectorAndTextContent(".current", "Done(1)")
@@ -140,7 +140,7 @@ testWithReact("useAsyncReloadData", container => {
   isTrue(value->Option.isSome)
 
   act(() => {
-    ReactDOMRe.render(<UseAsyncReloadData step=3 />, container)
+    ReactDOM.render(<UseAsyncReloadData step=3 />, container)
   })
 
   let value = container->DOM.findBySelectorAndTextContent(".current", "Done(1)")
@@ -149,7 +149,7 @@ testWithReact("useAsyncReloadData", container => {
   isTrue(value->Option.isSome)
 
   act(() => {
-    ReactDOMRe.render(<UseAsyncReloadData step=4 />, container)
+    ReactDOM.render(<UseAsyncReloadData step=4 />, container)
   })
 
   let value = container->DOM.findBySelectorAndTextContent(".current", "Done(2)")
@@ -161,7 +161,7 @@ testWithReact("useAsyncReloadData", container => {
 testWithReact("useAsyncReloadData with merge", container => {
   let merge = (a, _b) => a
   act(() => {
-    ReactDOMRe.render(<UseAsyncReloadData merge />, container)
+    ReactDOM.render(<UseAsyncReloadData merge />, container)
   })
 
   let value = container->DOM.findBySelectorAndTextContent(".current", "NotAsked")
@@ -170,7 +170,7 @@ testWithReact("useAsyncReloadData with merge", container => {
   isTrue(value->Option.isSome)
 
   act(() => {
-    ReactDOMRe.render(<UseAsyncReloadData step=1 merge />, container)
+    ReactDOM.render(<UseAsyncReloadData step=1 merge />, container)
   })
 
   let value = container->DOM.findBySelectorAndTextContent(".current", "Loading")
@@ -179,7 +179,7 @@ testWithReact("useAsyncReloadData with merge", container => {
   isTrue(value->Option.isSome)
 
   act(() => {
-    ReactDOMRe.render(<UseAsyncReloadData step=2 merge />, container)
+    ReactDOM.render(<UseAsyncReloadData step=2 merge />, container)
   })
 
   let value = container->DOM.findBySelectorAndTextContent(".current", "Done(1)")
@@ -188,7 +188,7 @@ testWithReact("useAsyncReloadData with merge", container => {
   isTrue(value->Option.isSome)
 
   act(() => {
-    ReactDOMRe.render(<UseAsyncReloadData step=3 merge />, container)
+    ReactDOM.render(<UseAsyncReloadData step=3 merge />, container)
   })
 
   let value = container->DOM.findBySelectorAndTextContent(".current", "Done(1)")
@@ -197,7 +197,7 @@ testWithReact("useAsyncReloadData with merge", container => {
   isTrue(value->Option.isSome)
 
   act(() => {
-    ReactDOMRe.render(<UseAsyncReloadData step=4 merge />, container)
+    ReactDOM.render(<UseAsyncReloadData step=4 merge />, container)
   })
 
   let value = container->DOM.findBySelectorAndTextContent(".current", "Done(1)")
