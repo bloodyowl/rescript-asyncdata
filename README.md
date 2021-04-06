@@ -109,48 +109,6 @@ This package contains a few utility functions to manipulate `AsyncData.t`:
 - `cmp`: For sorting
 - `eq`: For comparison
 
-## React hooks
-
-This library provides a `ReactAsyncData` module that contains some usefull hooks:
-
-### useAsyncData
-
-Simple async data
-
-```reason
-let (data, setData) = useAsyncData() // NotAsked
-setData(Loading) // Loading
-setData(Done(1)) // Done(1)
-```
-
-### useAsyncReloadData
-
-Simple async data with support for reload.
-
-Return a record containing:
-
-- `current`: after initial load, guaranteed to keep a `Done` state
-- `next`: the reload request
-
-```reason
-let (data, setData) = useAsyncReloadData() // {current: NotAsked, next: NotAsked}
-setData(Loading) // {current: Loading, next: Loading}
-setData(Done(1)) // {current: Done(1), next: Done(1)}
-setData(Loading) // {current: Done(1), next: Loading}
-setData(Done(2)) // {current: Done(2), next: Done(2)}
-```
-
-Takes an optional `merge` to define how to set `current` when receiving a new `Done(x)` .
-That can be useful if you want to compare the original and newly received data.
-
-```reason
-let (data, setData) = useAsyncReloadData(~merge=(a, _b) => a, ()) // {current: NotAsked, next: NotAsked}
-setData(Loading) // {current: Loading, next: Loading}
-setData(Done(1)) // {current: Done(1), next: Done(1)}
-setData(Loading) // {current: Done(1), next: Loading}
-setData(Done(2)) // {current: Done(1), next: Done(2)}
-```
-
 ## Aknowledgments
 
 This is heavily inspired by Elm's [krisajenkins/remotedata](https://github.com/krisajenkins/remotedata)

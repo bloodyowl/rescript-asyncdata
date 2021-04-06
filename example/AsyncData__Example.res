@@ -48,14 +48,14 @@ module User = {
 module Async = {
   @react.component
   let make = (~id) => {
-    let (user, setUser) = ReactAsyncData.useAsyncData()
+    let (user, setUser) = React.useState(() => AsyncData.NotAsked)
 
     React.useEffect1(() => {
-      setUser(Loading)
+      setUser(_ => Loading)
       User.get(id, user => {
-        setUser(Done(user))
+        setUser(_ => Done(user))
       })->Option.map((func, ()) => {
-        setUser(NotAsked)
+        setUser(_ => NotAsked)
         func()
       })
     }, [id])
@@ -71,11 +71,24 @@ module Async = {
   }
 }
 
+type reload<'a> = {current: AsyncData.t<'a>, next: AsyncData.t<'a>}
+
 module AsyncWithReload = {
   @react.component
   let make = (~id) => {
-    let (reloadableUser, setUser) = ReactAsyncData.useAsyncReloadData()
+    let (reloadableUser, setUser) = React.useState(() => {current: NotAsked, next: NotAsked})
     let (reloadCount, setReloadCount) = React.useState(() => 0)
+
+    let setUser = React.useCallback0((next: AsyncData.t<result<User.t, User.error>>) => {
+      setUser(state => {
+        current: switch (state.current, next) {
+        | (Done(_), Done(next)) => Done(next)
+        | (NotAsked | Loading, next) => next
+        | _ => state.current
+        },
+        next: next,
+      })
+    })
 
     React.useEffect2(() => {
       if mod(reloadCount, 2) == 0 {

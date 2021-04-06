@@ -17,9 +17,7 @@
     "moduleserve": "^0.9.1",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
-    "rescript-test": "^0.6.3"
-  },
-  "dependencies": {
+    "rescript-test": "^0.6.3",
     "@rescript/react": "^0.10.1"
   }
 }
