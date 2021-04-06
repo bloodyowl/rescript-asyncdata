@@ -1,3 +1,9 @@
+# 4.0.0
+
+Changes:
+
+- Don't expose React hooks (b8737eb)
+
 # 3.0.0
 
 Changes:
