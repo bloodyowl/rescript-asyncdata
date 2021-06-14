@@ -2,10 +2,10 @@
   "name": "rescript-asyncdata",
   "version": "4.0.0",
   "scripts": {
-    "clean": "bsb -clean-world",
-    "build": "bsb -make-world",
-    "watch": "bsb -make-world -w",
-    "test": "retest --with-dom test/*.bs.js"
+    "clean": "rescript clean",
+    "build": "rescript",
+    "watch": "rescript build -with-deps -w",
+    "test": "retest --with-dom test/*.mjs"
   },
   "keywords": [
     "BuckleScript"
@@ -14,10 +14,10 @@
   "license": "MIT",
   "devDependencies": {
     "@rescript/react": "^0.10.1",
-    "bs-platform": "^8.3.2",
     "moduleserve": "^0.9.1",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
-    "rescript-test": "^0.6.3"
+    "rescript": "^9.1.4",
+    "rescript-test": "^3.0.0"
   }
 }
