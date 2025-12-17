@@ -1,6 +1,6 @@
 {
   "name": "rescript-asyncdata",
-  "version": "4.0.0",
+  "version": "5.0.0",
   "scripts": {
     "clean": "rescript clean",
     "build": "rescript build",
