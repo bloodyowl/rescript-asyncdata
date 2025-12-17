@@ -1,7 +1,6 @@
 {
   "name": "rescript-asyncdata",
-  "version": "0.1.0",
-  "reason": { "react-jsx": 3 },
+  "jsx": { "version": 4 },
   "sources": [
     {
       "dir": "src",
@@ -22,8 +21,8 @@
     "module": "es6",
     "in-source": true
   },
-  "bs-dependencies": ["@rescript/react"],
-  "bs-dev-dependencies": ["rescript-test"],
+  "dependencies": ["@rescript/react"],
+  "dev-dependencies": ["rescript-test"],
   "suffix": ".mjs",
   "warnings": {
     "error": "+101"

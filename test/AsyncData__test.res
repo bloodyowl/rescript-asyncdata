@@ -21,36 +21,16 @@ test("AsyncData getExn", () => {
   })
 })
 
-test("AsyncData mapWithDefaultU", () => {
-  intEqual(NotAsked->mapWithDefaultU(0, (. value) => value + 1), 0)
-  intEqual(Loading->mapWithDefaultU(0, (. value) => value + 1), 0)
-  intEqual(Done(1)->mapWithDefaultU(0, (. value) => value + 1), 2)
-})
-
 test("AsyncData mapWithDefault", () => {
   intEqual(NotAsked->mapWithDefault(0, value => value + 1), 0)
   intEqual(Loading->mapWithDefault(0, value => value + 1), 0)
   intEqual(Done(1)->mapWithDefault(0, value => value + 1), 2)
 })
 
-test("AsyncData mapU", () => {
-  asyncDataEqual(NotAsked->mapU((. value) => value + 1), NotAsked)
-  asyncDataEqual(Loading->mapU((. value) => value + 1), Loading)
-  asyncDataEqual(Done(1)->mapU((. value) => value + 1), Done(2))
-})
-
 test("AsyncData map", () => {
   asyncDataEqual(NotAsked->map(value => value + 1), NotAsked)
   asyncDataEqual(Loading->map(value => value + 1), Loading)
   asyncDataEqual(Done(1)->map(value => value + 1), Done(2))
-})
-
-test("AsyncData flatMapU", () => {
-  asyncDataEqual(NotAsked->flatMapU((. value) => Done(value + 1)), NotAsked)
-  asyncDataEqual(Loading->flatMapU((. value) => Done(value + 1)), Loading)
-  asyncDataEqual(Done(1)->flatMapU((. value) => Done(value + 1)), Done(2))
-  asyncDataEqual(Done(1)->flatMapU((. _) => Loading), Loading)
-  asyncDataEqual(Done(1)->flatMapU((. _) => NotAsked), NotAsked)
 })
 
 test("AsyncData flatMap", () => {
@@ -85,20 +65,6 @@ test("AsyncData isNotAsked", () => {
   boolEqual(Done(2)->isNotAsked, false)
 })
 
-test("AsyncData eqU", () => {
-  boolEqual(eqU(NotAsked, NotAsked, (. a, b) => a === b), true)
-  boolEqual(eqU(Loading, Loading, (. a, b) => a === b), true)
-  boolEqual(eqU(NotAsked, Loading, (. a, b) => a === b), false)
-  boolEqual(eqU(Loading, NotAsked, (. a, b) => a === b), false)
-  boolEqual(eqU(NotAsked, Done(1), (. a, b) => a === b), false)
-  boolEqual(eqU(Loading, Done(1), (. a, b) => a === b), false)
-  boolEqual(eqU(Done(1), NotAsked, (. a, b) => a === b), false)
-  boolEqual(eqU(Done(1), Loading, (. a, b) => a === b), false)
-  boolEqual(eqU(Done(1), Done(1), (. a, b) => a === b), true)
-  boolEqual(eqU(Done(1), Done(2), (. a, b) => a === b), false)
-  boolEqual(eqU(Done(2), Done(1), (. a, b) => a === b), false)
-})
-
 test("AsyncData eq", () => {
   boolEqual(eq(NotAsked, NotAsked, (a, b) => a === b), true)
   boolEqual(eq(Loading, Loading, (a, b) => a === b), true)
@@ -111,16 +77,6 @@ test("AsyncData eq", () => {
   boolEqual(eq(Done(1), Done(1), (a, b) => a === b), true)
   boolEqual(eq(Done(1), Done(2), (a, b) => a === b), false)
   boolEqual(eq(Done(2), Done(1), (a, b) => a === b), false)
-})
-
-test("AsyncData cmpU", () => {
-  open Belt
-  asyncDataArrayEqual(
-    [Done(2), NotAsked, Loading, Loading, Done(1), NotAsked]->SortArray.stableSortBy((a, b) =>
-      cmpU(a, b, (. a, b) => b > a ? -1 : 1)
-    ),
-    [NotAsked, NotAsked, Loading, Loading, Done(1), Done(2)],
-  )
 })
 
 test("AsyncData cmp", () => {

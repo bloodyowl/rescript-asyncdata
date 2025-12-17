@@ -1,5 +1,3 @@
-open Belt
-
 // The following module is just a mock for an API
 module User = {
   type t = {
@@ -9,37 +7,40 @@ module User = {
   }
   type error
   let get = (id: string, cb: result<t, error> => unit) => {
-    Js.Console.log(`get(${id}): init`)
-    let timeoutId = Js.Global.setTimeout(() => {
-      Js.Console.log(`get(${id}): receive`)
-      let payload = {id: id, username: `User${id}`, fetchedAt: Js.Date.now()}
+    Console.log(`get(${id}): init`)
+
+    let timeoutId = setTimeout(() => {
+      Console.log(`get(${id}): receive`)
+      let payload = {id, username: `User${id}`, fetchedAt: Date.now()}
       cb(Ok(payload))
     }, 1_000)
+
     Some(
       () => {
-        Js.Console.log(`get(${id}): cancel`)
-        Js.Global.clearTimeout(timeoutId)
+        Console.log(`get(${id}): cancel`)
+        clearTimeout(timeoutId)
       },
     )
   }
+
   let getPage = (page: int, cb: result<array<t>, error> => unit) => {
-    Js.Console.log(`getPage(${page->Int.toString}): init`)
-    let timeoutId = Js.Global.setTimeout(() => {
-      Js.Console.log(`getPage(${page->Int.toString}): receive`)
-      let payload = Array.range(0, 9)->Array.map(index => {
+    Console.log(`getPage(${page->Int.toString}): init`)
+    let timeoutId = setTimeout(() => {
+      Console.log(`getPage(${page->Int.toString}): receive`)
+      let payload = Belt.Array.range(0, 9)->Array.map(index => {
         let id = ((page - 1) * 10 + index)->Int.toString
         {
-          id: id,
+          id,
           username: `User${id}`,
-          fetchedAt: Js.Date.now(),
+          fetchedAt: Date.now(),
         }
       })
       cb(Ok(payload))
     }, 1_000)
     Some(
       () => {
-        Js.Console.log(`getPage(${page->Int.toString}): cancel`)
-        Js.Global.clearTimeout(timeoutId)
+        Console.log(`getPage(${page->Int.toString}): cancel`)
+        clearTimeout(timeoutId)
       },
     )
   }
@@ -52,13 +53,23 @@ module Async = {
 
     React.useEffect1(() => {
       setUser(_ => Loading)
-      User.get(id, user => {
+
+      let cancel = User.get(id, user => {
         setUser(_ => Done(user))
-      })->Option.map((func, ()) => {
-        setUser(_ => NotAsked)
-        func()
       })
+
+      Some(
+        () => {
+          setUser(_ => NotAsked)
+          switch cancel {
+          | Some(cancel) => cancel()
+          | None => ()
+          }
+        },
+      )
     }, [id])
+
+    Console.log(user)
 
     <div>
       {switch user {
@@ -86,7 +97,7 @@ module AsyncWithReload = {
         | (NotAsked | Loading, next) => next
         | _ => state.current
         },
-        next: next,
+        next,
       })
     })
 
@@ -94,12 +105,20 @@ module AsyncWithReload = {
       if mod(reloadCount, 2) == 0 {
         let userRollback = reloadableUser.next
         setUser(Loading)
-        User.get(id, user => {
+
+        let cancel = User.get(id, user => {
           setUser(Done(user))
-        })->Option.map((func, ()) => {
-          setUser(userRollback)
-          func()
         })
+
+        Some(
+          () => {
+            setUser(userRollback)
+            switch cancel {
+            | Some(cancel) => cancel()
+            | None => ()
+            }
+          },
+        )
       } else {
         None
       }
@@ -110,7 +129,8 @@ module AsyncWithReload = {
       | NotAsked => React.null
       | Loading => "Loading ..."->React.string
       | Done(Error(_)) => "Error"->React.string
-      | Done(Ok(user)) => <>
+      | Done(Ok(user)) =>
+        <>
           {user.username->React.string}
           <small> {user.fetchedAt->React.float} </small>
           {reloadableUser.next->AsyncData.isLoading ? "Reloading ..."->React.string : React.null}
@@ -124,11 +144,15 @@ module AsyncWithReload = {
 module App = {
   @react.component
   let make = () => {
-    <div> <Async id="1" /> <br /> <AsyncWithReload id="2" /> </div>
+    <div>
+      <Async id="1" />
+      <br />
+      <AsyncWithReload id="2" />
+    </div>
   }
 }
 
 switch ReactDOM.querySelector("#root") {
-| Some(root) => ReactDOM.render(<App />, root)
+| Some(root) => ReactDOM.Client.createRoot(root)->ReactDOM.Client.Root.render(<App />)
 | None => ()
 }

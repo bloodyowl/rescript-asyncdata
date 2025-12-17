@@ -6,34 +6,28 @@ type t<'a> =
 let getExn = x =>
   switch x {
   | Done(x) => x
-  | NotAsked | Loading => raise(Not_found)
+  | NotAsked | Loading => throw(Not_found)
   }
 
-let mapWithDefaultU = (x, default, f) =>
+let mapWithDefault = (x, default, f) =>
   switch x {
-  | Done(x) => f(. x)
+  | Done(x) => f(x)
   | Loading | NotAsked => default
   }
 
-let mapWithDefault = (x, default, f) => mapWithDefaultU(x, default, (. x) => f(x))
-
-let mapU = (x, f) =>
+let map = (x, f) =>
   switch x {
-  | Done(x) => Done(f(. x))
+  | Done(x) => Done(f(x))
   | Loading => Loading
   | NotAsked => NotAsked
   }
 
-let map = (x, f) => mapU(x, (. x) => f(x))
-
-let flatMapU = (x, f) =>
+let flatMap = (x, f) =>
   switch x {
-  | Done(x) => f(. x)
+  | Done(x) => f(x)
   | Loading => Loading
   | NotAsked => NotAsked
   }
-
-let flatMap = (x, f) => flatMapU(x, (. x) => f(x))
 
 let getWithDefault = (x, default) =>
   switch x {
@@ -59,9 +53,9 @@ let isNotAsked = x =>
   | Loading | Done(_) => false
   }
 
-let eqU = (a, b, f) =>
+let eq = (a, b, f) =>
   switch (a, b) {
-  | (Done(a), Done(b)) => f(. a, b)
+  | (Done(a), Done(b)) => f(a, b)
   | (NotAsked, Done(_))
   | (NotAsked, Loading)
   | (Loading, NotAsked)
@@ -72,11 +66,9 @@ let eqU = (a, b, f) =>
   | (NotAsked, NotAsked) => true
   }
 
-let eq = (a, b, f) => eqU(a, b, (. x, y) => f(x, y))
-
-let cmpU = (a, b, f) =>
+let cmp = (a, b, f) =>
   switch (a, b) {
-  | (Done(a), Done(b)) => f(. a, b)
+  | (Done(a), Done(b)) => f(a, b)
   | (NotAsked, Done(_)) => -1
   | (NotAsked, Loading) => -1
   | (Loading, NotAsked) => 1
@@ -86,5 +78,3 @@ let cmpU = (a, b, f) =>
   | (Loading, Loading)
   | (NotAsked, NotAsked) => 0
   }
-
-let cmp = (a, b, f) => cmpU(a, b, (. x, y) => f(x, y))
