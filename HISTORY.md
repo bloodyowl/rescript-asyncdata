@@ -1,3 +1,9 @@
+# 5.0.0
+
+Changes:
+
+- Upgrade to ReScript 12 (8908909)
+
 # 4.0.0
 
 Changes:
